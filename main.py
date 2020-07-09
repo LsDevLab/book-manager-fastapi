@@ -14,10 +14,10 @@ api.add_middleware(
 )
 
 class Book(BaseModel):
-    isbn: str = "000"
-    title: str = "xxx"
+    isbn: str = "9781234567897"
+    title: str = "Libro di prova"
     year: int = 1970
-    price: Optional[int] = None
+    price: Optional[int] = 25
 
 books = [Book()]
 
