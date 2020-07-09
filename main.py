@@ -1,20 +1,25 @@
 from typing import Optional
 from fastapi import FastAPI
-import json
 from pydantic import BaseModel
-
-class Book(BaseModel):
-    isbn: str
-    title: str
-    year: int
-    price: Optional[int] = None
+from fastapi.middleware.cors import CORSMiddleware
 
 api = FastAPI()
 
-f = open('books.json')
-books = json.load(f)
-f.close()
+api.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
+class Book(BaseModel):
+    isbn: str = "000"
+    title: str = "xxx"
+    year: int = 1970
+    price: Optional[int] = None
+
+books = [Book()]
 
 @api.get('/manager')
 async def root():
@@ -24,28 +29,32 @@ async def root():
 @api.get('/manager/books')
 async def get_books():
     """Get the books resource"""
-    return {"books": books}
+    return books
 
 @api.get('/manager/books/{isbn}')
 async def get_books_byisbn(isbn: str):
     """Get the book resources selecting by index"""
-    book = [book for book in books if book["isbn"] == isbn]
-    return book
+    for b in books:
+        if b.isbn == isbn:
+            return b
+    return []
 
-@api.get('/manager/books/byyear/{year}')
-async def get_books_byyear(year: int):
-    """Get the book resources selecting by year"""
-    book = [book for book in books if book["year"] == year]
-    return book
-
-@api.post("/manager/books/")
-async def create_item(book: Book):
-    """Create a new book resource"""
+@api.put("/manager/books/{isbn}")
+async def modify_book(isbn: str, book: Book):
+    """Modify or create a book resource"""
+    for b in books:
+        if b.isbn == isbn:
+            b.isbn = book.isbn
+            b.title = book.title
+            b.price = book.price
+            b.year = book.year
+            return book
     books.append(book)
     return book
 
-@api.get('/manager/books/byyear/')
-async def get_books_byyear(fromYear: int = 0, toYear: int = 2020):
-    """Get the book resources selecting by year between fromYear to toYear"""
-    book = [book for book in books if (book["year"] >= fromYear and book["year"] <= toYear)]
-    return book
+@api.delete("/manager/books/{isbn}")
+async def delete_book(isbn: str):
+    """Delete a book resource"""
+    for i in range(0, len(books)):
+        if books[i].isbn == isbn:
+            return books.pop(i)
