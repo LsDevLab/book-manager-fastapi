@@ -19,7 +19,12 @@ class Book(BaseModel):
     year: int = 1970
     price: Optional[int] = 25
 
-books = [Book()]
+books = [Book(isbn="9781234567891", title="Libro di prova", year=1970, price=25),
+         Book(isbn="9781234567892", title="Programmazione C", year=1990, price=30),
+         Book(isbn="9781234567893", title="Java per nessuno", year=2010, price=15),
+         Book(isbn="9781234567894", title="Giardinaggio", year=2019),
+         Book(isbn="9781234567895", title="Libro brutto", year=2005),
+         Book(isbn="9781234567896", title="Tuttofare!", year=1995, price=35)]
 
 @api.get('/manager')
 async def root():
